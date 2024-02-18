@@ -7,7 +7,7 @@ import time
 network = canopen.Network()
 
 # Hardcoding which channel to use
-network.connect(bustype='pcan', channel= 'PCAN_USBBUS1', bitrate= 1251000)
+network.connect(bustype='pcan', channel= 'PCAN_USBBUS1', bitrate= 125000)
 
 network.scanner.search()
 
