@@ -24,11 +24,8 @@ for node_id in network.scanner.nodes:
 #for message in messages:
  #   print('Received message:',message)
     
-# ASSUMING THE EDS FILE ALLOWS FOR THE NODE TO BE ADDED TO THE NETWORK
 pathofeds = "as5-101.eds"
 node = network.add_node(90,pathofeds)
-
-#print(board.object_dictionary)
 
 #print object dictionary(Currently can't load anything as the object is empty)
 #for obj in node.object_dictionary.values():
