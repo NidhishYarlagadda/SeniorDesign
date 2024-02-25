@@ -36,8 +36,12 @@ node = network.add_node(90,pathofeds)
  #      for subobj in obj.values():
  #          print('  %d: %s' % (subobj.subindex, subobj.name))
 sdoclient = node.sdo
-msg = 0x01000000 # msg
-sdoclient.download(0x2003,0x04,msg,) # to send msg to board(A Docal msg)
+client = sdoclient.SdoClient()
+msg = 0x01 # msg
+#sdoclient[]
+sdoclient.download(0x2003,0x04,bytes(msg),True) # to send msg to board(A Docal msg)
+response = sdoclient.upload(0x2003,0x04)
+print(response)
 cal_stat = (sdoclient[0x2003][0x04]).raw # gets the stats bit from status register(2003)
 
 #cal_stat_bit = (0b11000000 & cal_stat) >> 6 #Bit mask for status bits
