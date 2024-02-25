@@ -1,6 +1,7 @@
 # Script is to test that we can establish some sort of connection with the sensor
-# connecting to the network, finding the specific node, and opening a stream to and fro
-# GOAL : Sending a message and receiving one back.
+# TO DO: 
+
+
 import canopen
 import time
 
@@ -34,12 +35,22 @@ node = network.add_node(90,pathofeds)
  #   if isinstance(obj, canopen.objectdictionary.ODRecord):
  #      for subobj in obj.values():
  #          print('  %d: %s' % (subobj.subindex, subobj.name))
-cal_stat = (node.sdo[0x2003][0x04]).raw
+sdoclient = node.sdo
+msg = 0x01000000 # msg
+sdoclient.download(0x2003,0x04,msg,) # to send msg to board(A Docal msg)
+cal_stat = (sdoclient[0x2003][0x04]).raw # gets the stats bit from status register(2003)
 
-cal_stat_bit = (0b11000000 & cal_stat) >> 6 #Bit mask for status bits
+#cal_stat_bit = (0b11000000 & cal_stat) >> 6 #Bit mask for status bits
+#This is to test that the msg is received. 
+print("Status:{:06b}".format(cal_stat)) # Prints out status
 
-print("Status:{:02b}".format(cal_stat_bit)) # Prints out status
+angle = (sdoclient[0x2004][0x01].raw) / 10.0 # returns the decimal value of the angle stored in angle register(2004)
 
+
+# In single angle mode, all angles are saved in Angle 1, 2, and 3.(subindexes of 2004)
+
+
+print("Angle data:", angle)
 
 # to send messages using the sdo
 
