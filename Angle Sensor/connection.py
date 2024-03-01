@@ -36,7 +36,7 @@ node = network.add_node(90,pathofeds)
  #      for subobj in obj.values():
  #          print('  %d: %s' % (subobj.subindex, subobj.name))
 sdoclient = node.sdo
-client = sdoclient.SdoClient()
+#client = sdoclient.SdoClient()
 msg = 0x01 # msg
 #sdoclient[]
 sdoclient.download(0x2003,0x04,bytes(msg),True) # to send msg to board(A Docal msg)
