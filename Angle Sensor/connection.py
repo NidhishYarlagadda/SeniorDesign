@@ -26,22 +26,33 @@ for node_id in network.scanner.nodes: # scans for ids
     
 pathofeds = "as5-101.eds" # path to the eds file(manual containing the sensor's registers and stuff)
 node = network.add_node(90,pathofeds) # adds the sensor id to the network
-
-
 sdoserver = node.sdo
-msg = "4003200401000000" # msg
-msg_array = bytearray.fromhex(msg)
-print(msg_array)
-print(bytearray(8))
-sdoserver.download(0x2003,0x04,msg_array,True) # to send msg to board(A Docal msg)
-response = sdoserver.upload(0x2003,0x04)
-print(response)
+
+# TEST DOCAL
+# At this point it should be all 0, as nothing is calibrated at this point
 cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status register(2003)
+print("OLD Status:{:08b}".format(cal_stat)) # Prints out status
 
-#cal_stat_bit = (0b11000000 & cal_stat) >> 6 #Bit mask for status bits
+msg = "2f03200401000000" # DoCalmsg
+msg_hex_array = [0x2f, 0x03, 0x20,0x04,0x01,0x00,0x00, 0x00]
+print(msg_hex_array)
+msg_array = bytearray(msg_hex_array)
+#print(bytearray(8))
+print(msg_array)
+#msg_array[0:4]=([0x2f], [0x03], [0x20], [0x04],[0x01])
+
+
+sdoserver.download(0x2003,0x04,msg_array,False) # to send msg to board(A Docal msg)
+
+# At least one Bit should have changed, if the calibration was successful
+cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status register(2003)
+print("New Status:{:08b}".format(cal_stat)) # Prints out status
+
+#response = sdoserver.upload(0x2003,0x04)
+#print(response)
+
+#cal_stat_bit = (0b11000000 & cal_stat) >> 6 #Bit mask for status bits(the first two bits to see if it is fully calibrated)
 #This is to test that the msg is received. 
-print("Status:{:06b}".format(cal_stat)) # Prints out status
-
 angle = (sdoserver[0x2004][0x01].raw) / 10.0 # returns the decimal value of the angle stored in angle register(2004)
 
 
