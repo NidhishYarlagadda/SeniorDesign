@@ -41,7 +41,7 @@ print(msg_array)
 
 
 sdoserver.download(0x2003,0x04,msg_array) # to send msg to board(A Docal msg)
-time.sleep(0.6) # GIVE IT SOME TIME 
+time.sleep(4) # GIVE IT SOME TIME 
 
 # At least one Bit should have changed, if the calibration was successful
 cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status register(2003)
