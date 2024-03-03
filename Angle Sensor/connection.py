@@ -38,11 +38,12 @@ msg_hex_array = [0x2f, 0x03, 0x20,0x04,0x01,0x00,0x00, 0x00]
 print(msg_hex_array)
 msg_array = bytearray(msg_hex_array)
 #print(bytearray(8))
-print(msg_array)
+print(bytes(msg_array))
 #msg_array[0:4]=([0x2f], [0x03], [0x20], [0x04],[0x01])
 
 
-sdoserver.download(0x2003,0x04,msg_array,False) # to send msg to board(A Docal msg)
+
+sdoserver.download(0x2003,0x04,bytes(msg_array),False) # to send msg to board(A Docal msg)
 
 # At least one Bit should have changed, if the calibration was successful
 cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status register(2003)
