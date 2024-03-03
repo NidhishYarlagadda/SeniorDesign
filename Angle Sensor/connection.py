@@ -34,7 +34,7 @@ cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status regist
 print("OLD Status:{:08b}".format(cal_stat)) # Prints out status
 
 msg = "2f03200401000000" # DoCalmsg
-msg_array = bytes(0x01)
+msg_array = bytes([0x01])
 
 print(msg_array)
 
@@ -42,8 +42,7 @@ print(msg_array)
 
 
 sdoserver.download(0x2003,0x04,msg_array) # to send msg to board(A Docal msg)
-time.sleep(0.5)
-
+time.sleep(0.6)
 # At least one Bit should have changed, if the calibration was successful
 cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status register(2003)
 print("New Status:{:08b}".format(cal_stat)) # Prints out status
