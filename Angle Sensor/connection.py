@@ -31,7 +31,7 @@ node = network.add_node(90,pathofeds) # adds the sensor id to the network
 sdoserver = node.sdo
 msg = "4003200401000000" # msg
 msg_array = bytearray.fromhex(msg)
-gitprint(msg_array)
+print(msg_array)
 print(bytearray(8))
 sdoserver.download(0x2003,0x04,msg_array,True) # to send msg to board(A Docal msg)
 response = sdoserver.upload(0x2003,0x04)
