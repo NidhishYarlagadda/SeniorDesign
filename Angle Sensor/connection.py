@@ -31,13 +31,24 @@ sdoserver = node.sdo
 # TEST DOCAL
 # At this point it should be all 0, as nothing is calibrated at this point
 cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status register(2003)
+#print("Starting Calibration")
 print("OLD Status:{:08b}".format(cal_stat)) # Prints out status
+# Use bit mask to map what axes are calibrated
 
 msg_array = bytes([0x01]) # THIS IS THE DOCAL MESSAGE
+# Need to make a reset message
 
 print(msg_array)
 
+# ORDER OF OPERATION:
+#Start in Z v up
 
+#  Z v up
+#  Z v down
+#  X v down
+#  X v up
+#  Y v down
+#  Y v up
 
 
 sdoserver.download(0x2003,0x04,msg_array) # to send msg to board(A Docal msg)
@@ -46,6 +57,7 @@ time.sleep(4) # GIVE IT SOME TIME
 # At least one Bit should have changed, if the calibration was successful
 cal_stat = (sdoserver[0x2003][0x04]).raw # gets the stats bit from status register(2003)
 print("New Status:{:08b}".format(cal_stat)) # Prints out status
+# Use bit mask to map what axes are calibrated
 
 #response = sdoserver.upload(0x2003,0x04)
 #print(response)
