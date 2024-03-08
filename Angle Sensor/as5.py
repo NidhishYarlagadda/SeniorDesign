@@ -9,9 +9,17 @@ class AS5():
     #
     # Returns:
     #       None
-    def __init__(self):
+    def __init__(self, network): # initializes with network being passed
 
-        self.calibrationInit = False
+        self.calibrationdone= False
+        self.Xaxisup = False
+        self.Xaxisdown = False
+        self.Yaxisdown = False
+        self.Yaxisup  = False
+        self.Zaxisdown = False
+        self.Zaxisup = False
+        self.network = network
+        self.statusbits = 0
         pass
 
     # Summary:
@@ -20,15 +28,26 @@ class AS5():
     #
     # Returns:
     #
-    def startCal(self):
-        self.calibrationInit = True
+    def DoCal(self):
+        #self.calibrationInit = True
         pass
 
     # Summary:
     #       Calibrates the sensor for a specific axis.
-    # Parameters:
-    #       axis: a str that represents which axis to calibrate.
-    # Returns:
+    # Operations:
+    # Send DOcal message,
+    # If SdoCommunication Error, send Docal message again.
+    
+    # Bitmask check for which sides are calibrated, and update the side boolean.
+    
+    # if statusbits == ff: then set calbrationdone to True
+
+    #Return:
+
+    
+
+
+     
     #
     def calibrate(self,axis):
         if not self.calibrationInit:
