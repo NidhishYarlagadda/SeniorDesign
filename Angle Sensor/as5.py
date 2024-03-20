@@ -20,7 +20,11 @@ class AS5():
         self.Zaxisup = False
         self.network = network
         self.statusbits = 0
-        pass
+
+        # Initialize node in network with eds file.
+        self.node = self.network.add_node(90,"as5-101.eds")
+        self.sdoserver = self.node.sdo
+        
 
     # Summary:
     #       Sends the doCal signal to the board to put the board in calibration mode.
@@ -56,9 +60,17 @@ class AS5():
     # Summary:
     #       Obtains the axis specific angle data.
     # Parameters:
-    #       axis: a str that represents which axis to look at.
+    #       axis: an that represents which axis to look at. 0 = x, 1 = y, 2 = z
     # Returns:
     #       double: the angle measurment.
     def getAngle(self,axis):
-        pass
+        subIndexes = [0x01,0x02,0x03]
+        try:
+            angle = (self.sdoserver[0x2004][subIndexes[axis]].raw) / 10.0
+            return angle
+        except: 
+            raise Exception("Error Reading Angle from Sensor")
+
+        
+        
 
