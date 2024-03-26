@@ -42,7 +42,7 @@ class AS5():
     # Bitmask check for which sides are calibrated, and update the side boolean.
     # if statusbits == ff: then set calbrationdone to True
 
-        if self.calibrationdone: # If cal is already done
+        if not self.calibrationdone: # If cal is already done
             msg_array = bytes([0x01]) # DoCal Message
 
             # Send the Docal Message
@@ -117,13 +117,15 @@ class AS5():
     # Returns:
     #       double: the angle measurment.
     def getAngle(self,axis):
-        subIndexes = [0x01,0x02,0x03]
-        try:
-            angle = (self.sdoserver[0x2004][subIndexes[axis]].raw) / 10.0
-            return angle
-        except: 
-            raise Exception("Error Reading Angle from Sensor")
-
+        if self.calibrationdone:
+            subIndexes = [0x01,0x02,0x03]
+            try:
+                angle = (self.sdoserver[0x2004][subIndexes[axis]].raw) / 10.0
+                return angle
+            except: 
+                raise Exception("Error Reading Angle from Sensor")
+        else:
+            raise Exception("Did not calibrate. Calibrate first")
         
         
 
