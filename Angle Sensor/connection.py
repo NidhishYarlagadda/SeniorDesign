@@ -1,5 +1,6 @@
 # Script is to test that we can establish some sort of connection with the sensor
-# TO DO: 
+# TO DO: Calibration is complete needs to work
+#        Seem to not be getting calibration errors
 
 
 import canopen
