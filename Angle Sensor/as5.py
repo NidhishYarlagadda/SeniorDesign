@@ -20,7 +20,8 @@ class AS5():
         self.Zaxisdown = False
         self.Zaxisup = False
         self.network = network
-        self.statusbits = 0
+        self.newstatus = 0
+        self.oldstatus = 0
 
         # Initialize node in network with eds file.
         self.node = self.network.add_node(90,"as5-101.eds")
@@ -32,7 +33,11 @@ class AS5():
     # Parameters:
     #
     # Returns:
-    #
+    
+    def getcalstatus(self):
+        print(self.newstatus)
+        return self.newstatus
+    
     def DoCal(self):
     # Summary:
     #       Calibrates the sensor for a specific axis.
@@ -41,75 +46,99 @@ class AS5():
     # If SdoCommunication Error, send Docal message again.
     # Bitmask check for which sides are calibrated, and update the side boolean.
     # if statusbits == ff: then set calbrationdone to True
-
         if not self.calibrationdone: # If cal is already done
             msg_array = bytes([0x01]) # DoCal Message
 
             # Send the Docal Message
-            while(1): # While loop to compensate for the inconsistency of it working
-                try:
-                    self.sdoserver.download(0x2003,0x04,msg_array) # to send msg to board
-                    break
-                except Exception as e:
+            #while(1): # While loop to compensate for the inconsistency of it working
+             #   try:
+                        
+            #        break
+             #   except Exception as e:
                     # Note: Multiple errors possible. Sdocommunication error causes inconsistency
                     # if it doesn't work try again till no error.
-                    print("This error occured while sending: ",e)
-                    print("**TRYING AGAIN**")
+             #       print("This error occured while sending: ",e)
+              #      print("**TRYING AGAIN**")
+            print("In Docal")
 
+            try:
+                self.oldstatus = ((self.sdoserver[0x2003][0x04]).raw)
+            except:
+                print("Error: Status bit unable to be read")
+                #raise Exception("Error: Status bit unable to be read")
+
+            print("OLD STATUS: " + bin(self.oldstatus))
+
+            self.sdoserver.download(0x2003,0x04,msg_array) # to send msg to board
             time.sleep(4)
-
+            print("In Docal: Sent Message")
             # Check the status bits
             # Make the bit mask to check for which axis has just been calibrated 
+            
             try:
-                self.statusbits = ((self.sdoserver[0x2003][0x04]).raw)
+                self.newstatus = ((self.sdoserver[0x2003][0x04]).raw)
             except:
-                raise Exception("Error: Status bit unable to be read")
-                
-            #  0     1     2     3     4     5     6     7
+                print("Error: Status bit unable to be read")
+                #raise Exception("Error: Status bit unable to be read")
+            
+            print("NEW STATUS: " + bin(self.newstatus))
+            #  7     6     5     4     3     2     1     0
             #             Zdn   Zup   Ydn   Xdn   Yup   Xup
             #  1  |  1  |  0  |  0  |  0  |  0  |  0  |  0
             #     0b00000001 shift 0  Xup
-            if   (0b00000001 & self.statusbits) == 1:
-                self.Xaxisup = True
-                print("X vector up calibrated ")
-            #      0b00000010 shift 1  Yup
-            elif ((0b00000010 & self.statusbits)>>1) == 1:
-                self.Yaxisup = True
-                print("Y vector up calibrated ")
-            #      0b00000100 shift 2  Xdn
-            elif ((0b00000100 & self.statusbits)>>2) == 1:
-                self.Xaxisdown = True
-                print("X vector down calibrated ")
-            #      0b00001000 shift 3  Ydn
-            elif ((0b00001000 & self.statusbits)>>3) == 1:
-                self.Yaxisdown = True
-                print("Y vector down calibrated ")
-            #      0b00010000 shift 4  Zup
-            elif ((0b00010000 & self.statusbits)>>4) == 1:
-                self.Zaxisup = True
-                print("Z vector up calibrated ")
-            #      0b00100000 shift 5  Zdn
-            elif ((0b00100000 & self.statusbits)>>5) == 1:
-                self.Zaxisdown = True
-                print("Z vector down calibrated ")
-            else:
-                if self.statusbits == 0b11111111: 
-                    self.calibrationdone = True
-                # or somehow no calibrations have been made (0b00000000)
+            statusbits = self.newstatus >> 6 # isolates the bits 7 and 6 -
+            check_axis = (self.newstatus ^ self.oldstatus) & 0b00111111  # Xor to isolate the modified axis(eliminated the status bits)
             
+
+            if statusbits == 0b11: # if successful cal
+                #  5     4     3     2     1     0    
+                #  Zdn   Zup   Ydn   Xdn   Yup   Xup
+                #  0  |  0  |  0  |  0  |  0  |  0
+                    
+                    if check_axis == 0:# Same side twice
+                        print("You have calibrated this side already")
+                    
+                    
+                    elif check_axis == 2**5: # 100000 -> Zdn
+                        self.Zaxisdown = True
+                        print("Z vector down calibrated ")  
+                    
+                    elif check_axis == 2**4: # 010000 -> Zup 16
+                        self.Zaxisup = True
+                        print("Z vector up calibrated ")       
+                    
+                    elif check_axis == 2**3: # 001000 -> Ydn
+                        self.Yaxisdown = True
+                        print("Y vector down calibrated ")   
+                    
+                    elif check_axis == 2**2: # 000100 -> Xdn
+                        self.Xaxisdown = True
+                        print("X vector down calibrated ")   
+                    
+                    elif check_axis == 2: # 000010 -> Yup
+                        self.Yaxisup = True
+                        print("Y vector up calibrated ")  
+                    
+                    elif check_axis == 1: # 000001 -> Xup 
+                        self.Xaxisup = True
+                        print("X vector up calibrated ")  
+
+                    if self.newstatus == 0b11111111:
+                        self.calibrationdone = True
+            elif statusbits == 0b01: # undefined
+                print("ERROR: UNDEFINED")
+            elif statusbits == 0b10: # Failed
+                print("ERROR: CALIBRATION FAILED")
+
         else:
-            raise Exception("CALIBRATION ALREADY COMPLETE")
+            print("CALIBRATION ALREADY COMPLETE")
+            #raise Exception("CALIBRATION ALREADY COMPLETE")
     #Return: potential could just return results string?
 
     
 
 
      
-    #
-    def calibrate(self,axis):
-        if not self.calibrationInit:
-            raise Exception("Intiaialize calibration first")
-
     # Summary:
     #       Obtains the axis specific angle data.
     # Parameters:
