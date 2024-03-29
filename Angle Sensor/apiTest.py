@@ -6,13 +6,16 @@ network = canopen.Network()
 network.connect(bustype='pcan', channel= 'PCAN_USBBUS1', bitrate= 125000)
 
 myDevice = AS5(network)
-
-
 myDevice.DoCal()
 
-#bin(myDevice.getcalstatus())
+while(1):
+   print(myDevice.getAngle(0))
 
-#print(myDevice.getAngle(0))
+
+#myDevice.DoCal()
+
+
+
 
 
 network.disconnect()
