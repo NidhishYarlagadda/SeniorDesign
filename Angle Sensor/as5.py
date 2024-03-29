@@ -3,7 +3,6 @@
 import time
 import canopen
 class AS5():
-
     # Summary:
     #       AS5 object default constructor.
     # Parameters:
@@ -11,8 +10,6 @@ class AS5():
     # Returns:
     #       None
     def __init__(self, network): # initializes with network being passed
-
-        self.calibrationdone= False
         self.Xaxisup = False
         self.Xaxisdown = False
         self.Yaxisdown = False
@@ -20,47 +17,39 @@ class AS5():
         self.Zaxisdown = False
         self.Zaxisup = False
         self.network = network
-        self.newstatus = 0
-        self.oldstatus = 0
+        
 
         # Initialize node in network with eds file.
         self.node = self.network.add_node(90,"as5-101.eds")
         self.sdoserver = self.node.sdo
         
+        # need to check the status bits and set the calibrationdone and the statuses.
+        self.calibrationdone= False
+        self.newstatus = 0
+        self.oldstatus = 0
 
-    # Summary:
-    #       Sends the doCal signal to the board to put the board in calibration mode.
-    # Parameters:
-    #
-    # Returns:
-    
     def getcalstatus(self):
         print(self.newstatus)
         return self.newstatus
+    
+    # get the axis functions
+    # GET BOOLEANS
+
     
     def DoCal(self):
     # Summary:
     #       Calibrates the sensor for a specific axis.
     # Operations:
-    # Send DOcal message,
-    # If SdoCommunication Error, send Docal message again.
-    # Bitmask check for which sides are calibrated, and update the side boolean.
-    # if statusbits == ff: then set calbrationdone to True
+    #   Send Docal message, to calibrate axis
+    #   If SdoCommunication Error, send Docal message again.
+    #   Bitmask check for which sides are calibrated, and update the side boolean.
+    #   if statusbits == ff: then set calbrationdone to True
+        # self.calibration is always false, we need to check status bits in the initialization.
         if not self.calibrationdone: # If cal is already done
-            msg_array = bytes([0x01]) # DoCal Message
-
-            # Send the Docal Message
-            #while(1): # While loop to compensate for the inconsistency of it working
-             #   try:
-                        
-            #        break
-             #   except Exception as e:
-                    # Note: Multiple errors possible. Sdocommunication error causes inconsistency
-                    # if it doesn't work try again till no error.
-             #       print("This error occured while sending: ",e)
-              #      print("**TRYING AGAIN**")
+            msg_array = bytes([0x01]) # DoCal Message     
             print("In Docal")
 
+############ PRE MSG : RETRIEVING THE OLD STATUS ################################
             try:
                 self.oldstatus = ((self.sdoserver[0x2003][0x04]).raw)
             except:
@@ -69,18 +58,29 @@ class AS5():
 
             print("OLD STATUS: " + bin(self.oldstatus))
 
-            self.sdoserver.download(0x2003,0x04,msg_array) # to send msg to board
+############ SENDING MSG ################################
+            while(1): # While loop to compensate for the inconsistency of it working
+                try:
+                    self.sdoserver.download(0x2003,0x04,msg_array) # to send msg to board           
+                    break
+                except Exception as e:
+                    # Note: Multiple errors possible. Sdocommunication error causes inconsistency
+                    # if it doesn't work try again till no error.
+                    print("This error occured while sending: ",e)
+                    print("**TRYING AGAIN**")
+            
             time.sleep(4)
             print("In Docal: Sent Message")
             # Check the status bits
             # Make the bit mask to check for which axis has just been calibrated 
-            
+
+
+############ POST MSG: RETRIEVING THE OLD STATUS ################################           
             try:
                 self.newstatus = ((self.sdoserver[0x2003][0x04]).raw)
             except:
                 print("Error: Status bit unable to be read")
                 #raise Exception("Error: Status bit unable to be read")
-            
             print("NEW STATUS: " + bin(self.newstatus))
             #  7     6     5     4     3     2     1     0
             #             Zdn   Zup   Ydn   Xdn   Yup   Xup
@@ -125,6 +125,7 @@ class AS5():
 
                     if self.newstatus == 0b11111111:
                         self.calibrationdone = True
+                        print("**Sensor has now been fully calibrated**")
             elif statusbits == 0b01: # undefined
                 print("ERROR: UNDEFINED")
             elif statusbits == 0b10: # Failed
@@ -139,13 +140,14 @@ class AS5():
 
 
      
-    # Summary:
+    
+    def getAngle(self,axis):
+        # Summary:
     #       Obtains the axis specific angle data.
     # Parameters:
     #       axis: an that represents which axis to look at. 0 = x, 1 = y, 2 = z
     # Returns:
     #       double: the angle measurment.
-    def getAngle(self,axis):
         if self.calibrationdone:
             subIndexes = [0x01,0x02,0x03]
             try:
