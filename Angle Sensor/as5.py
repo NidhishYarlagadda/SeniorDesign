@@ -2,6 +2,8 @@
 # messages from the angle sensor.
 import time
 import canopen
+
+
 class AS5():
     # Summary:
     #       AS5 object default constructor.
@@ -17,20 +19,59 @@ class AS5():
         self.Zaxisdown = False
         self.Zaxisup = False
         self.network = network
-        
+        self.stat = 0
 
         # Initialize node in network with eds file.
         self.node = self.network.add_node(90,"as5-101.eds")
         self.sdoserver = self.node.sdo
         
         # need to check the status bits and set the calibrationdone and the statuses.
-        self.calibrationdone= False
-        self.newstatus = 0
-        self.oldstatus = 0
+        self.stat = self.pullstat()
 
+        if self.stat == 0b11111111:
+            self.calibrationdone = True
+            self.Xaxisup = True
+            self.Xaxisdown = True
+            self.Yaxisdown = True
+            self.Yaxisup  = True
+            self.Zaxisdown = True
+            self.Zaxisup = True 
+            self.newstatus = self.stat
+            self.oldstatus = self.stat  
+            print("***Sensor is calibrated as of initialization****")
+
+        else:
+##### if stat is not 0000 and there are some calibrations already done.
+            self.calibrationdone = False
+            self.newstatus = 0
+            self.oldstatus = 0
+
+    def pullstat(self):# pulls status bits from board.
+            try:
+                result = ((self.sdoserver[0x2003][0x04]).raw)
+            except:
+                print("Error: Status bit unable to be read")
+            
+            return result
+
+
+################## Axis Booleans Calibrations #######################################
+    def isXupcalibrated(self):
+        return self.Xaxisup
+    def isXdncalibrated(self):
+        return self.Xaxisdown
+    def isZupcalibrated(self):
+        return self.Zaxisup
+    def isZdncalibrated(self):
+        return self.Zaxisdown
+    def isYupcalibrated(self):
+        return self.Yaxisup
+    def isYdncalibrated(self):
+        return self.Yaxisdown
+    
+    
     def getcalstatus(self):
-        print(self.newstatus)
-        return self.newstatus
+        return self.stat
     
     # get the axis functions
     # GET BOOLEANS
@@ -44,18 +85,13 @@ class AS5():
     #   If SdoCommunication Error, send Docal message again.
     #   Bitmask check for which sides are calibrated, and update the side boolean.
     #   if statusbits == ff: then set calbrationdone to True
-        # self.calibration is always false, we need to check status bits in the initialization.
+
         if not self.calibrationdone: # If cal is already done
             msg_array = bytes([0x01]) # DoCal Message     
             print("In Docal")
 
 ############ PRE MSG : RETRIEVING THE OLD STATUS ################################
-            try:
-                self.oldstatus = ((self.sdoserver[0x2003][0x04]).raw)
-            except:
-                print("Error: Status bit unable to be read")
-                #raise Exception("Error: Status bit unable to be read")
-
+            self.oldstatus = self.pullstat()
             print("OLD STATUS: " + bin(self.oldstatus))
 
 ############ SENDING MSG ################################
@@ -74,14 +110,11 @@ class AS5():
             # Check the status bits
             # Make the bit mask to check for which axis has just been calibrated 
 
-
 ############ POST MSG: RETRIEVING THE OLD STATUS ################################           
-            try:
-                self.newstatus = ((self.sdoserver[0x2003][0x04]).raw)
-            except:
-                print("Error: Status bit unable to be read")
-                #raise Exception("Error: Status bit unable to be read")
+            self.newstatus = self.pullstat()
+            self.stat = self.newstatus
             print("NEW STATUS: " + bin(self.newstatus))
+############ 
             #  7     6     5     4     3     2     1     0
             #             Zdn   Zup   Ydn   Xdn   Yup   Xup
             #  1  |  1  |  0  |  0  |  0  |  0  |  0  |  0
@@ -134,7 +167,7 @@ class AS5():
         else:
             print("CALIBRATION ALREADY COMPLETE")
             #raise Exception("CALIBRATION ALREADY COMPLETE")
-    #Return: potential could just return results string?
+
 
     
 
