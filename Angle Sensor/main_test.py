@@ -5,9 +5,6 @@
 # All rights reserved.
 #
 # Author: Vinman <vinman.wen@ufactory.cc> <vinman.cub@gmail.com>
-from as5 import AS5
-import canopen
-import time
 
 # TODO
 '''
@@ -33,6 +30,9 @@ import traceback
 import threading
 from xarm import version
 from xarm.wrapper import XArmAPI
+from as5 import AS5
+import canopen
+import time
 
 
 class RobotMain(object):
