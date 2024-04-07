@@ -50,9 +50,12 @@ class RobotMain(object):
         self._robot_init()
 
         #TO DO:
-        # MERGE SENSOR API WITH THIS > Composition
-        # Create the instance of the Angle sensor here
-        # Then make Methods recalling the as5 methods.
+        # For seamless integration with GUI team:
+        #   Break calibration method, potentially return the boolean after each axis calibration(axiscalibration)
+        self.network = canopen.Network()
+        self.network.connect(bustype='pcan', channel= 'PCAN_USBBUS1', bitrate= 125000)
+        self.as5 = AS5(self.network)
+
 
 
     # Robot init
@@ -351,20 +354,26 @@ class RobotMain(object):
                 self._arm.release_count_changed_callback(self._count_changed_callback)
 
 
+    def axiscalibration(self,code):
+        # For breaking the calibration into parts.
+        # Plan:
+        # GUI creates a Robot Main instance(which uses a AS5 instance in composition)
+        # GUI passes in code when calling this method. And it calibrates the axis
+        #which potentially could return boolean for the axis?
+        #code = self._arm.set_servo_angle(angle=, wait=True)
+        if not self._check_code(code, 'set_servo_angle'):
+            return
+        print("*****Going to Sleep")
+        time.sleep(5)
+        # call AS5 calibration function (if error try again)
+        self.as5.DoCal()
+        pass
 
     def calibration(self):
         try:
             '''
                 go through all movements and for each movement call the AS5 function
             '''
-
-            ####### AS5 OBJECT CREATION
-            network = canopen.Network()
-            # Hardcoding which channel to use
-            network.connect(bustype='pcan', channel= 'PCAN_USBBUS1', bitrate= 125000)
-
-            as5 = AS5(network)
-
 #### ----------------- Z-AXIS DOWN -------------------------
             print("Z-axis Down Test")
 
@@ -376,9 +385,9 @@ class RobotMain(object):
             print("*****Going to Sleep")
             time.sleep(5)
             # call AS5 calibration function (if error try again)
-            as5.DoCal()
+            self.as5.DoCal()
 
-            response = as5.isZdncalibrated()
+            response = self.as5.isZdncalibrated()
             if not response:
                 print("Z down did not calibrate")
                 #return
@@ -400,9 +409,9 @@ class RobotMain(object):
             time.sleep(5)
 
             # call AS5 calibration function (if error try again)
-            as5.DoCal()
+            self.as5.DoCal()
 
-            response = as5.isZupcalibrated()
+            response = self.as5.isZupcalibrated()
             if not response:
                 print("Z up did not calibrate")
                 #return
@@ -425,9 +434,9 @@ class RobotMain(object):
             time.sleep(5)
 
             # call AS5 calibration function (if error try again)
-            as5.DoCal()
+            self.as5.DoCal()
 
-            response = as5.isXdncalibrated()
+            response = self.as5.isXdncalibrated()
             if not response:
                 print("X down did not calibrate")
             else:
@@ -446,9 +455,9 @@ class RobotMain(object):
             time.sleep(5)
 
             # call AS5 calibration function (if error try again)
-            as5.DoCal()
+            self.as5.DoCal()
 
-            response = as5.isYupcalibrated()
+            response = self.as5.isYupcalibrated()
             if not response:
                 print("Y up did not calibrate")
             else:
@@ -466,9 +475,9 @@ class RobotMain(object):
             time.sleep(5)
 
             # call AS5 calibration function (if error try again)
-            as5.DoCal()
+            self.as5.DoCal()
 
-            response = as5.isXupcalibrated()
+            response = self.as5.isXupcalibrated()
             if not response:
                 print("X up did not calibrate")
             else:
@@ -486,15 +495,15 @@ class RobotMain(object):
             time.sleep(5)
 
             # call AS5 calibration function (if error try again)
-            as5.DoCal()
+            self.as5.DoCal()
 
-            response = as5.isXupcalibrated()
+            response = self.as5.isXupcalibrated()
             if not response:
                 print("Y down did not calibrate")
             else:
                 print("Success!")
 
-            network.disconnect()
+            self.network.disconnect()
 
         except Exception as e:
             self.pprint('MainException: {}'.format(e))
