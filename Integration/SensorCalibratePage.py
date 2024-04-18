@@ -58,7 +58,8 @@ class SCP(tk.Frame):
                 test_results = [arm.calibrate_yUP()]
                 print("Y Up boolean:",test_results[0])
                 #test_results = [True] if self.test_stage == 1 else [False]
-                elf.test_stage += self.after(2000, self.update_label_color(test_results,2))
+                self.update_label_color(test_results,2)
+                self.after(2000, self.update_label_color(test_results,2))
 
                 test_results = [arm.calibrate_xUP()]
                 print("X Up boolean:",test_results[0])
