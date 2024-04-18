@@ -511,7 +511,7 @@ class RobotMain(object):
             print("Success!")
             return True
 
-    def calibration(self):
+    def calibration(self): #TO DO: REMOVE THE AS5 instance here.
         try:
             '''
                 go through all movements and for each movement call the AS5 function
@@ -701,4 +701,3 @@ if __name__ == '__main__':
 
     #TO DO:
     # Implement the calibration integration.
-
