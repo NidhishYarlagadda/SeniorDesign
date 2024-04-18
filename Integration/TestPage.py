@@ -1,11 +1,19 @@
 import tkinter as tk
 import subprocess
 import main_test
+import csv
+import os
+from datetime import datetime
 
+# TO DO: 
+# IT SAVES AS A PLAIN DOCUMENT NOT A CSV.
+# 
 #/home/tech/Downloads/SeniorDesign/XArm/xarmAPI/xArm-Python-SDK/example/wrapper/xarm6/TestPage.py
 
 # imports
 from main_test import RobotMain, get_arm
+
+RESULTS_DIRPATH = os.path.join(os.getcwd(), "results/")
 
 class TestPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -59,6 +67,8 @@ class TestPage(tk.Frame):
             #file.write("stop")
        # print("Stopping")
 
+    
+
 # This function runs a test function in main_test.py that moves the robot arm up and down
     def run_testfunction(self):
         # get the xarm object from main_test.py
@@ -83,19 +93,63 @@ class TestPage(tk.Frame):
             print("X Up boolean:",arm.calibrate_xUP())
             print("Y Down boolean:",arm.calibrate_yDN())
         else:
-            angle = 0
-            move  = arm.move_to_angle(angle)
-            while(1):
-                print("AS5 ANGLE: ", arm.as5.getAngle(0))
-                print("XARM ANGLE: ", arm.get_angle())
+            #while(1):
+             #   print("AS5 ANGLE: ", arm.as5.getAngle(0))
+              #  print("XARM ANGLE: ", arm.get_angle())
 
                 #angle += 5
-                angle = arm.as5.getAngle(0)
-                move  = arm.move_to_angle(angle)
+              #  angle = arm.as5.getAngle(0)
+              #  move  = arm.move_to_angle(angle)
+            arm.move_to_angle(0)
+            result_list = []
+            for angle in range(-90, 95, 5):
+                arm.move_to_angle(angle)
+                print("Ref Angle: ", angle)
+                test_angle = arm.as5.getAngle(0)
+                print("Test Angle:",test_angle)
+                difference = abs(angle - test_angle)
+                result =  difference <= 0.4
+                result_list.append([angle,test_angle,difference,result])
+                
+                if not result: 
+                    print("Test Failed: Sensor not Correct")
+                    print("Result List:",result_list)
+                    break
+            fields = ['Angle', 'Test Angle', 'Difference', 'Results']
+            self.createFile(fields, result_list)
+            arm.move_to_angle(0)
+
+    def createFile(self, fields, results):
+        if not os.path.isdir(RESULTS_DIRPATH):
+            os.mkdir(RESULTS_DIRPATH)
+        
+        fileName = datetime.now().strftime("%Y_%m_%d-%I_%M_%S")
+        filePath = os.path.join(RESULTS_DIRPATH, fileName)
+
+        with open(filePath, 'w', newline='') as csvFile:
+            csvWriter = csv.writer(csvFile, delimiter='|')
+            csvWriter.writerow(fields)
+            csvWriter.writerows(results)
+    
+    
+
+
+
+
+
+
+                
+
+
+
+                
+                
+
 
         
 
     
+
 
 
 
