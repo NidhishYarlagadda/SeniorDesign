@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import tkinter as tk
 from TestPage import TestPage
 from SensorCalibratePage import SCP
@@ -28,7 +29,7 @@ class MainApplication(tk.Tk):
         self.test_page = TestPage(self, self)
 
         # 添加标题
-        self.title_label = tk.Label(self, text='Home Page', font=('bm jua', 30), fg='black',bg='white')
+        self.title_label = tk.Label(self, text='Home Page', font=('bm jua', 30), fg='black',bg='White')
         self.title_label.pack(side='top', pady=150)
 
         # 创建按钮框架
@@ -74,4 +75,3 @@ class MainApplication(tk.Tk):
 if __name__ == "__main__":
     app = MainApplication()
     app.mainloop()
-
