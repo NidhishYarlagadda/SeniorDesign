@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import tkinter as tk
 import subprocess
 import main_test
@@ -13,7 +14,7 @@ from datetime import datetime
 # imports
 from main_test import RobotMain, get_arm
 
-RESULTS_DIRPATH = os.path.join(os.getcwd(), "results/")
+RESULTS_DIRPATH = os.path.join(os.getcwd(),"Downloads/SeniorDesign/XArm/xarmAPI/xArm-Python-SDK/example/wrapper/xarm6/results/")
 
 class TestPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -32,7 +33,8 @@ class TestPage(tk.Frame):
         Emergency_Stop_button = tk.Button(self, text="STOP", bd = 3, font=('bm jua', 20), relief="groove", bg="Red", activebackground="Darkred", fg="white")
         Emergency_Stop_button.place(relx = 0.1, rely = 0.2, anchor = "center")
         
-        buttons = ["Start", "Reset"]
+        
+        buttons = ["Start", "Save"]
         i = 1
         w = 0.25
         for t in buttons:
@@ -46,18 +48,21 @@ class TestPage(tk.Frame):
             bt.place(relx = i*1.3*w, width = 120, height= 80, rely = 0.25, anchor='center')
             i+=1
 
+        LogF = tk.Frame(self, bg='White', height = 200, width = 900)
+        LogF.place(relx = 0.5, rely = 0.6, anchor = "center")
 
-        LogF = tk.Frame(self, bg='White', height = 350, width = 600)
-        LogF.place(relx = 0.4, rely = 0.7, anchor = "center")
+        lbr = tk.Label(LogF, text = "Real Angle:", font=('bm jua', 15), justify= "left", bg = "White")
+        lbr.place(relx = 0.35, rely = 0.25, anchor="center" )
 
-        i = 1
-        labels = ["X: __", "Y: __", "Z: __"]
-        for t in labels:
-            lb = tk.Label(LogF, text = t, font=('bm jua', 15), justify= "left", bg = "White")
-            lb.place(relx = 0.2, rely = i*w, anchor="center" )
-            Error = tk.Label(LogF, text = "Error: __", font=('bm jua', 20), justify= "left", bg = "White")
-            Error.place(relx = 0.7, rely = i*w, anchor="center")
-            i+=1
+        Realvalue = tk.Label(LogF, text = "00.00", font=('bm jua', 15), justify= "left", bg = "White")
+        Realvalue.place(relx = 0.65, rely = 0.25, anchor="center" )
+
+        lbt = tk.Label(LogF, text = "Test Angle:", font=('bm jua', 15), justify= "left", bg = "White")
+        lbt.place(relx = 0.35, rely = 0.7, anchor="center" )
+
+        Testvalue = tk.Label(LogF, text = "00.00", font=('bm jua', 15), justify= "left", bg = "White")
+        Testvalue.place(relx = 0.65, rely = 0.7, anchor="center" )
+
     def run_main_test(self):
         subprocess.run (["python3","main_test.py"])
 
@@ -93,19 +98,15 @@ class TestPage(tk.Frame):
             print("X Up boolean:",arm.calibrate_xUP())
             print("Y Down boolean:",arm.calibrate_yDN())
         else:
-            #while(1):
-             #   print("AS5 ANGLE: ", arm.as5.getAngle(0))
-              #  print("XARM ANGLE: ", arm.get_angle())
-
-                #angle += 5
-              #  angle = arm.as5.getAngle(0)
-              #  move  = arm.move_to_angle(angle)
             arm.move_to_angle(0)
             result_list = []
             for angle in range(-90, 95, 5):
                 arm.move_to_angle(angle)
                 print("Ref Angle: ", angle)
                 test_angle = arm.as5.getAngle(0)
+
+#update(test_angle, angle)
+
                 print("Test Angle:",test_angle)
                 difference = abs(angle - test_angle)
                 result =  difference <= 0.4
@@ -120,20 +121,20 @@ class TestPage(tk.Frame):
             arm.move_to_angle(0)
 
     def createFile(self, fields, results):
+        print("Writing to file...")
         if not os.path.isdir(RESULTS_DIRPATH):
             os.mkdir(RESULTS_DIRPATH)
         
-        fileName = datetime.now().strftime("%Y_%m_%d-%I_%M_%S")
+        fileName = datetime.now().strftime("%Y_%m_%d-%I_%M_%S") + ".csv"
         filePath = os.path.join(RESULTS_DIRPATH, fileName)
+        #
+        print("FileName: ", fileName)
+        print("File Path: ", filePath)
 
         with open(filePath, 'w', newline='') as csvFile:
             csvWriter = csv.writer(csvFile, delimiter='|')
             csvWriter.writerow(fields)
             csvWriter.writerows(results)
-    
-    
-
-
 
 
 
@@ -149,7 +150,6 @@ class TestPage(tk.Frame):
         
 
     
-
 
 
 
