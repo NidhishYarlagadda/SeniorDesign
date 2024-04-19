@@ -43,7 +43,7 @@ class RobotMain(object):
         self._ignore_exit_state = False
         self._tcp_speed = 50   # OG 100
         self._tcp_acc = 2000    # OG 2000
-        self._angle_speed = 10  # OG 20
+        self._angle_speed = 20  # OG 20
         self._angle_acc = 500   # OG 500
         self._vars = {}
         self._funcs = {}
@@ -376,8 +376,8 @@ class RobotMain(object):
         code = self._arm.set_servo_angle(angle=initial_pos, wait=True)
         if not self._check_code(code, 'set_servo_angle'):
             return False
-        print("*****Going to Sleep")
-        time.sleep(5)
+        #print("*****Going to Sleep")
+        #time.sleep(5)
         # call AS5 calibration function (if error try again)
         self.as5.DoCal()
 
@@ -401,8 +401,8 @@ class RobotMain(object):
         code = self._arm.set_position(x=316,y=-2.9,z=724.2,roll=0,pitch=0,yaw=180, relative=False, is_radian=False, wait=True, speed=30)
         if not self._check_code(code, 'set_position'):
             return False
-        print("*****Going to Sleep")
-        time.sleep(5)
+        #print("*****Going to Sleep")
+        #time.sleep(5)
 
         # call AS5 calibration function (if error try again)
         self.as5.DoCal()
@@ -428,8 +428,8 @@ class RobotMain(object):
         if not self._check_code(code, 'set_position'):
             return False
         
-        print("*****Going to Sleep")
-        time.sleep(5)
+        #print("*****Going to Sleep")
+        #time.sleep(5)
 
         # call AS5 calibration function (if error try again)
         self.as5.DoCal()
@@ -447,12 +447,12 @@ class RobotMain(object):
         print("Y-AXIS UP  Test")
 
         # set the arm to face positive z-axis
-        code = self._arm.set_servo_angle(angle=[0,0,0,0,-90,90], speed=self._angle_speed, mvacc=self._angle_acc, wait=False, radius=0.0)
+        code = self._arm.set_servo_angle(angle=[0,0,0,0,-90,90], speed=self._angle_speed, mvacc=self._angle_acc, wait=True, radius=0.0)
         if not self._check_code(code, 'set_position'):
             return False
         
-        print("*****Going to Sleep")
-        time.sleep(5)
+        #print("*****Going to Sleep")
+        #time.sleep(5)
 
         # call AS5 calibration function (if error try again)
         self.as5.DoCal()
@@ -470,12 +470,12 @@ class RobotMain(object):
         print("X-AXIS UP Test")
 
         # set the arm to face positive z-axis
-        code = self._arm.set_servo_angle(angle=[0,0,0,0,-90, 180], speed=self._angle_speed, mvacc=self._angle_acc, wait=False, radius=0.0)
+        code = self._arm.set_servo_angle(angle=[0,0,0,0,-90, 180], speed=self._angle_speed, mvacc=self._angle_acc, wait=True, radius=0.0)
         if not self._check_code(code, 'set_position'):
             return False
         
-        print("*****Going to Sleep")
-        time.sleep(5)
+        #print("*****Going to Sleep")
+        #time.sleep(5)
 
         # call AS5 calibration function (if error try again)
         self.as5.DoCal()
@@ -493,12 +493,12 @@ class RobotMain(object):
         print("Y-AXIS DOWN Test")
 
         # set the arm to face positive z-axis
-        code = self._arm.set_servo_angle(angle=[0,0,0,0,-90, 270], speed=self._angle_speed, mvacc=self._angle_acc, wait=False, radius=0.0)
+        code = self._arm.set_servo_angle(angle=[0,0,0,0,-90, 270], speed=self._angle_speed, mvacc=self._angle_acc, wait=True, radius=0.0)
         if not self._check_code(code, 'set_position'):
             return False
         
-        print("*****Going to Sleep")
-        time.sleep(5)
+        #print("*****Going to Sleep")
+        #time.sleep(5)
 
         # call AS5 calibration function (if error try again)
         self.as5.DoCal()
@@ -679,7 +679,7 @@ class RobotMain(object):
         return self._arm.get_servo_angle(servo_id=6)
 
     def move_to_angle(self, angle):
-        code = self._arm.set_servo_angle(angle = [0,0,0,0,-90,angle], wait=True)
+        code = self._arm.set_servo_angle(angle = [0,0,0,0,-90,angle],speed=self._angle_speed, wait=True)
 
 def get_arm():
     return XArmAPI('192.168.1.214', baud_checkset=False, is_radian=False)
@@ -701,3 +701,4 @@ if __name__ == '__main__':
 
     #TO DO:
     # Implement the calibration integration.
+
