@@ -18,7 +18,7 @@ class AS5():
         self.stat = 0
 
         # Initialize node in network with eds file.
-        self.node = self.network.add_node(90,"as5-101.eds")
+        self.node = self.network.add_node(90,'/home/tech/Downloads/SeniorDesign/XArm/xarmAPI/xArm-Python-SDK/example/wrapper/xarm6/as5-101.eds')
         self.sdoserver = self.node.sdo
         
         # need to check the status bits and set the calibrationdone and the statuses.
